@@ -34,12 +34,24 @@ class Tapper:
                 json_data = file.read()
            
             response = await http_client.post(url='https://api.tapswap.ai/api/account/login',
-                                              json={"init_data": json_data, "referrer": ""})
+                                              json={"init_data": json_data, "referrer": ""}
+                                            #   json={
+                                            # "init_data": "query_id=AAE0ud5OAgAAADS53k4TcLkS&user=%7B%22id%22%3A5618186548%2C%22first_name%22%3A%22S%E1%BB%B1%22%2C%22last_name%22%3A%22%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1718797290&hash=9ba01c33f7469037a106a56e03fd9eaadec4cc3341f4cd7f7c51daace31e9b49",
+                                            # "referrer": "",
+                                            # "bot_key": "app_bot_0"
+                                            # }
+                                              )
             
             response_text = await response.text()
-            response.raise_for_status()
+            #response.raise_for_status()
 
             response_json = await response.json()
+            wait_s = response_json.get('wait_s')
+            if wait_s:
+                logger.error(f"{self.session_name} | App overloaded, waiting for: {wait_s}")
+                await asyncio.sleep(delay=wait_s)
+                return self.login(http_client, json_file_path)
+            
             chq = response_json.get('chq')
             if chq:
                 chq_result = extract_chq(chq=chq)
@@ -47,7 +59,7 @@ class Tapper:
                 response = await http_client.post(url='https://api.tapswap.ai/api/account/login',
                                                   json={"chr": chq_result, "init_data": json_data, "referrer": ""})
                 response_text = await response.text()
-                response.raise_for_status()
+                #response.raise_for_status()
 
                 response_json = await response.json()
             self.user_id = response_json['player']["id"]

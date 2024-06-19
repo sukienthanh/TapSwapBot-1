@@ -22,11 +22,7 @@ start_text = """
 
 global tg_clients
 
-def get_session_names() -> list[str]:
-    session_names = glob.glob('sessions/*.session')
-    session_names = [os.path.splitext(os.path.basename(file))[0] for file in session_names]
 
-    return session_names
 
 def get_proxies() -> list[Proxy]:
     
@@ -59,20 +55,13 @@ async def get_tg_clients() -> list[Data]:
 
 
 async def process() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--action", type=int, help="Action to perform")
-
-    logger.info(f"Detected {len(get_session_names())} sessions | {len(get_proxies())} proxies")
-
-    action = parser.parse_args().action
-
-    if not action:
-        print(start_text)
-        
-        tg_clients = await get_tg_clients()
-        for client in tg_clients:
-            print(f'Proxy: {client.proxy}, JSON Name: {client.json_name}')
-        await run_tasks(tg_clients=tg_clients)
+  
+    print(start_text)
+    
+    tg_clients = await get_tg_clients()
+    for client in tg_clients:
+        print(f'Proxy: {client.proxy}, JSON Name: {client.json_name}')
+    await run_tasks(tg_clients=tg_clients)
 
 
 async def run_tasks(tg_clients: list[Data]):
